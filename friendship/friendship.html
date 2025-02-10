@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frenny Tracker - Friendship Quiz</title>
+    <link rel="icon" type="image/x-icon" href="logo.jpg">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(to right, #ffdde1, #ee9ca7);
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #d63384;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        p {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            margin-top: 10px;
+            background: #ff85a2;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #ff4d6d;
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+        .input-field {
+            padding: 10px;
+            width: 80%;
+            font-size: 16px;
+            border: 2px solid #ff85a2;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-box {
+            background: #ffe4e1;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #ff85a2;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+
+        /* Super Friend Note Styling */
+        .super-note {
+            font-style: italic;
+            color: #555;
+            font-size: 16px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #FFB6C1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Landing Page with Name Input -->
+    <div id="landing" class="container">
+        <h1>Welcome to Frenny Tracker 💕</h1>
+        <p>Enter your name to begin:</p>
+        <input type="text" id="username" class="input-field" placeholder="Your Name">
+        <button class="btn" onclick="startQuiz()">Start the Quiz ✨</button>
+    </div>
+
+    <!-- Quiz Section -->
+    <div id="quiz" class="container hidden">
+        <h1>What Kind of Friend Are You?</h1>
+        <div id="question-container"></div>
+        <button class="btn hidden" id="next-btn" onclick="nextQuestion()">Next Question ➡️</button>
+        <button class="btn hidden" id="submit-btn" onclick="calculateResult()">See Result 🎉</button>
+    </div>
+
+    <!-- Result Section -->
+    <div id="result" class="container hidden">
+        <h2>Your Friendship Type:</h2>
+
+        <!-- Result Box -->
+        <div class="result-box">
+            <p id="resultText"></p>
+
+            <!-- Super Friend Note (Inside the box) -->
+            <p id="superFriendNote" class="super-note hidden">
+                <!-- Blank for now, but well-styled -->
+            </p>
+        </div>
+
+        <button class="btn" onclick="restartQuiz()">Try Again 🔄</button>
+    </div>
+
+    
+
+
+    <script>
+        let username = "";
+        let currentQuestion = 0;
+        let answers = [];
+
+        const questions = [
+            { text: "At school you spent most of your lunchtimes:", options: ["Helping others", "Hanging with friends", "Joking around", "Deep in conversation"] },
+            { text: "What do you talk about with your friends?", options: ["Work", "Love life", "Hobbies", "Ideas"] },
+            { text: "Your best friend is moving away. You’ll be losing:", options: ["A social key", "Your right arm", "A grounding force", "A confidant"] },
+            { text: "Your friend upsets you. You:", options: ["Stop talking", "Let it go", "Confront them", "Ask for their reasoning"] },
+            { text: "A weekend with friends means:", options: ["Helping them out", "Partying", "Adventures", "Deep talks"] },
+            { text: "Your friend hasn’t called in months. You:", options: ["Forget about it", "Check daily", "Call them", "Wait patiently"] },
+            { text: "Your ideal hangout spot:", options: ["Library", "Nightclub", "Road trip", "Coffee shop"] },
+            { text: "Your go-to way of cheering a friend up:", options: ["Support them", "Plan a party", "Take them on an adventure", "Listen deeply"] },
+            { text: "Your friends describe you as:", options: ["Loyal", "Wild", "Funny", "Empathetic"] },
+            { text: "If a friend is struggling, you:", options: ["Help them", "Tell jokes", "Encourage an escape", "Offer advice"] }
+        ];
+
+        function startQuiz() {
+            username = document.getElementById("username").value.trim();
+            if (!username) {
+                alert("Please enter your name before starting!");
+                return;
+            }
+            document.getElementById("landing").classList.add("hidden");
+            document.getElementById("quiz").classList.remove("hidden");
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questionContainer = document.getElementById("question-container");
+            questionContainer.innerHTML = `<p><strong>${currentQuestion + 1}. ${questions[currentQuestion].text}</strong></p>`;
+            let optionsHtml = "";
+            questions[currentQuestion].options.forEach((opt, index) => {
+                optionsHtml += `<label><input type="radio" name="q${currentQuestion}" value="${index}"> ${opt}</label><br>`;
+            });
+            questionContainer.innerHTML += optionsHtml;
+            document.getElementById("next-btn").classList.remove("hidden");
+            document.getElementById("submit-btn").classList.add("hidden");
+        }
+
+        function nextQuestion() {
+            const selected = document.querySelector(`input[name="q${currentQuestion}"]:checked`);
+            if (!selected) {
+                alert("Please select an answer!");
+                return;
+            }
+            answers.push(parseInt(selected.value));
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                document.getElementById("next-btn").classList.add("hidden");
+                document.getElementById("submit-btn").classList.remove("hidden");
+            }
+        }
+
+        function calculateResult() {
+            let types = ["Loyal", "Adventurous", "Funny", "Empathetic"];
+            let counts = [0, 0, 0, 0];
+
+            answers.forEach(ans => counts[ans]++);
+            let maxIndex = counts.indexOf(Math.max(...counts));
+
+            let descriptions = [
+                "you are the Loyal Friend. Always there for your loved ones, they know they can count on you for anything!",
+                "you are the Adventurous Friend. Always up for a new experience, you bring excitement wherever you go!",
+                "you are the Funny Friend. You make everyone laugh and lighten up any situation!",
+                "you are the Empathetic Friend. A deep listener and advisor, your friends confide in you."
+            ];
+
+            document.getElementById("resultText").innerHTML = `<strong>${username},</strong> ${descriptions[maxIndex]}`;
+            
+            let superFriendNote = document.getElementById("superFriendNote");
+                superFriendNote.classList.remove("hidden");  
+                superFriendNote.innerText = "It's been 5 years since we've become friends and I'm very thankful na nakilala kita. For the short period of time na magkasama tayo napakadami agad nating memorable experiences. What kind of friend are you to me? Well, ikaw lang naman nag yung pinaka affectionate at maalalahanin kong friend. Kahit na malayo na ako sainyo you always catch up sa mga kaganapan ko sa buhay. And syempre isa ka sa pinakamagaganda kong frenny, I hope to see you very soon!              From your dearest Sol.";
+
+            document.getElementById("quiz").classList.add("hidden");
+            document.getElementById("result").classList.remove("hidden");
+        }
+
+        function restartQuiz() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
